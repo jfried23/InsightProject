@@ -12,7 +12,8 @@
     <title>Starter Template for Bootstrap</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
@@ -79,13 +80,13 @@
       column at &lt; 768px (Extra small). 
     </p>
   </div>
-  <form class="form-horizontal" role="form">
+  <form class="form-horizontal" role="form" method='post' action='/' >
     <div class="row">
       <div class="col-sm-6 col-lg-4">
         <div class="form-group">
           <label for="inputLocation" class="col-md-4 control-label">Your Location:</label>
           <div class="col-md-8">
-            <input type="email" class="form-control" id="inputAddress1" placeholder="Geographic Desciption">
+            <input  class="form-control" id="inputAddress1" name='loc1' placeholder="Geographic Desciption">
           </div>
         </div>
       </div>
@@ -93,7 +94,7 @@
         <div class="form-group">
           <label for="inputLocation" class="col-md-4 control-label">Their Location:</label>
           <div class="col-md-8">
-            <input type="email" class="form-control" id="inputAddress2" placeholder="Geographic Desciption">
+            <input class="form-control" id="inputAddress2" name='loc2' placeholder="Geographic Desciption">
           </div>
         </div>
       </div>
@@ -101,39 +102,64 @@
         <div class="form-group">
           <label for="inputLocation" class="col-md-4 control-label">We are looking for:</label>
           <div class="col-md-8">
-            <input type="email" class="form-control" id="querry" placeholder="Cuisine, Activity, ect.">
+            <input class="form-control" id="querry" name='querry' placeholder="Search terms (Cuisine, Activity, ect.)">
           </div>
         </div>
       </div>
-      <div class="col-sm-2 col-lg-2">
+
+      <div class="col-sm-1 col-md-1">
         <div class="form-group">
-          <label for="inputLocation" class="col-md-4 control-label">Price</label>
-          <div class="col-md-2">
-            <input type="email" class="form-control" id="querry" placeholder="Cuisine, Activity, ect.">
+          <div class="col-md-1">
+            <select name="transit_mode">
+              <option value="transit">Transit</option>
+              <option value="walking">Walking</option>
+              <option value="driving">Driving</option>
+            </select>
           </div>
         </div>
       </div>
-      <div class="col-sm-2 col-lg-2">
+
+      <div class="col-sm-1 col-md-1">
         <div class="form-group">
-          <label for="inputLocation" class="col-md-4 control-label">Price</label>
-          <div class="col-md-2">
-            <input type="email" class="form-control" id="querry" placeholder="Cuisine, Activity, ect.">
+          <div class="col-md-1">
+            <select name="price">
+              <option value="4">$$$$</option>
+              <option value="3">$$$</option>
+              <option value="2">$$</option>
+              <option value="1">$</option>
+            </select>
           </div>
         </div>
       </div>
-      <div class="col-sm-2 col-lg-2">
+
+      <div class="col-sm-1 col-md-1">
         <div class="form-group">
-          <label for="inputLocation" class="col-md-4 control-label">Price</label>
-          <div class="col-md-2">
-            <input type="email" class="form-control" id="querry" placeholder="Cuisine, Activity, ect.">
+          <div class="col-md-1">
+            <select name="review">
+              <option value="4">****</option>
+              <option value="3"></option>
+              <option value="2">$$</option>
+              <option value="1">$</option>
+            </select>
           </div>
         </div>
       </div>
+
+      <div class="col-sm-2 col-md-2">
+        <div class="form-group">
+          <div class="col-md-2">
+            <button type="submit"  class="btn btn-primary" >Map it!</button>
+          </div>
+        </div>
+      </div>
+
+
+
   </form>
 
   <div id="map-canvas"></div>
 
-    </div><!-- /.container -->
+  </div><!-- /.container -->
 
 
     <!-- Bootstrap core JavaScript
