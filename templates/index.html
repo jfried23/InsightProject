@@ -102,7 +102,7 @@
         <div class="form-group">
           <label for="inputLocation" class="col-md-4 control-label">We are looking for:</label>
           <div class="col-md-8">
-            <input class="form-control" id="querry" name='querry' placeholder="Search terms (Cuisine, Activity, ect.)">
+            <input class="form-control" id="query" name='query' placeholder="Search terms (Cuisine, Activity, ect.)">
           </div>
         </div>
       </div>
@@ -119,25 +119,13 @@
         </div>
       </div>
 
-      <div class="col-sm-1 col-md-1">
+      <div class="col-sm-2 col-md-2">
         <div class="form-group">
-          <div class="col-md-1">
+          <div class="col-md-2">
             <select name="price">
+              <option value="0">Price--Any</option>
               <option value="4">$$$$</option>
               <option value="3">$$$</option>
-              <option value="2">$$</option>
-              <option value="1">$</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-1 col-md-1">
-        <div class="form-group">
-          <div class="col-md-1">
-            <select name="review">
-              <option value="4">****</option>
-              <option value="3"></option>
               <option value="2">$$</option>
               <option value="1">$</option>
             </select>
@@ -148,6 +136,20 @@
       <div class="col-sm-2 col-md-2">
         <div class="form-group">
           <div class="col-md-2">
+            <select name="review">
+              <option value="0">User Review -- Any</option>
+              <option value="4">****</option>
+              <option value="3">***</option>
+              <option value="2">**</option>
+              <option value="1">*</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-1 col-md-1">
+        <div class="form-group">
+          <div class="col-md-1">
             <button type="submit"  class="btn btn-primary" >Map it!</button>
           </div>
         </div>
@@ -180,8 +182,11 @@
 
 	function initialize() {
 
+            var infowindow;
+            var center = {{center|safe}};
+
             var mapOptions = {
-                center: new google.maps.LatLng(40.749364, -73.987687),
+                center: new google.maps.LatLng(center.lat, center.lng),
                 zoom: 12,
                 mapTypeId: google.maps.MapTypeId.TERRAIN,
                 scrollwheel: false,
@@ -195,9 +200,49 @@
                 rotateControl: true,
             };
 var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+
+        var poi = {{poi|safe}};
+
+        if (poi != 0 ){ callback( poi['results'], poi['status'], map ); };
+
+
         }
 google.maps.event.addDomListener(window, 'load', initialize);
 
+
+      function callback(results, status, map) {
+        if (status === 'OK') {
+          for (var i = 0; i < results.length; i++) {
+            createMarker(results[i], map);
+          }
+        }
+      };
+
+      function createMarker(place, map) {
+        var placeLoc = place.geometry.location;
+        var marker = new google.maps.Marker({
+          map: map,
+          position: place.geometry.location
+        });
+
+        
+        infowindow = new google.maps.InfoWindow();
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.setContent( 
+
+            "<h4>"+place.name+"</h4>"+
+            "<p>Rating: " +place.rating+" / 5</p>" + 
+            "<p>Price: " + place.price_level+" / 4</p>"+
+            "<p>"+ place.vicinity +"</p>" 
+
+
+            );
+          infowindow.open(map, this);
+        });
+
+
+      }
 
     </script>
 
