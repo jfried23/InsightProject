@@ -34,7 +34,7 @@ def index():
 
 		midPoint, dist = MidPoint.searchMidPoint(loc1, loc2, gMapsKey, time='now', mode = transit_mode)
 
-		if dist < 2000: dist= 500
+		if dist < 10000: dist= 500
 
 		for i in range(5):
 			pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=dist+i*dist*.05, minprice=0, maxprice=4)
