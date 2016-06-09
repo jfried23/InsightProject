@@ -2,6 +2,7 @@ from flask import Flask,render_template,request,redirect
 import MidPoint
 import simplejson
 import time
+import numpy as np
 
 import googlePOI
 
@@ -31,11 +32,32 @@ def index():
 		loc1_geo = googlePOI.geocodeFromName(loc1)
 		loc2_geo = googlePOI.geocodeFromName(loc2)
 
-		midPoint = MidPoint.searchMidPoint(loc1, loc2, gMapsKey, time='now', mode = transit_mode)
+		midPoint, dist = MidPoint.searchMidPoint(loc1, loc2, gMapsKey, time='now', mode = transit_mode)
+
+		if dist < 2000: dist= 500
+
+		for i in range(5):
+			pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=dist+i*dist*.05, minprice=0, maxprice=4)
+			if (len(pois['results']) > 0) & (pois['status'] =='OK'): break
+			i+=1
 
 
-		pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=500, minprice=0, maxprice=4)
+		if pois['status'] =='OK':
+			scores = np.zeros((len(pois['results']), 3))
 
+			for idx, p in enumerate(pois['results']):
+			
+				try: scores[idx][0] = float(p['price_level'])
+				except: pass
+
+				try: scores[idx][1] = float(p['rating'])
+				except: pass
+
+				try: scores[idx][2] = float(p['opening_hours']['open_now'])
+				except: pass
+
+			print scores
+			print price, review
 
 
 

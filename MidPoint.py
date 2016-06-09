@@ -14,10 +14,13 @@ def getDirections( start, stop, key, time='now', mode='transit'):
 
 def searchMidPoint(start, stop, key, mode='transit', time=time):
 		jsonDir = getDirections( start, stop, key, time=time, mode = mode )
-		gps =  findMidPoint(jsonDir)
-		return gps
+		if jsonDir['status'] == 'OK':
+			gps  =  findMidPoint(jsonDir) 
+			return gps
 
 def findMidPoint( jsonDir ):
+
+
 		steps = jsonDir['routes'][0]['legs'][0]['steps']
 
 
@@ -40,11 +43,12 @@ def findMidPoint( jsonDir ):
 		#Now decode the midStep polyline into constinuent points and find middle one
 		midStep =  steps[keyStep]
 		points =  polyline.decode( midStep['polyline']['points'] )
+		
 
 		if keyStep > 0: netTime = 1.*trip_time - lenOfStep[keyStep-1]
 		else:           netTime = 1.*trip_time
 
-		avg_time_per_point = midStep['duration']['value']/len(points)
+		avg_time_per_point = midStep['duration']['value']/len(points)*1.
 		midIndex = int(round(netTime/(avg_time_per_point)))
 		
 		midPointGPS =  points[midIndex]  #GPS corrdinates of middle point
@@ -55,7 +59,9 @@ def findMidPoint( jsonDir ):
 			lineInfo = midStep['transit_details']['line']['name'].replace(' ','+')
 			#print lineInfo, midPointGPS
 
-		return midPointGPS
+		dist = jsonDir['routes'][0]['legs'][0]['distance']['value']*0.5
+
+		return midPointGPS, dist  
 
 if __name__ == '__main__':
 	keys = simplejson.load( open('./static/keys.json') )
