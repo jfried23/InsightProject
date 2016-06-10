@@ -19,7 +19,7 @@ callStr = "https://maps.googleapis.com/maps/api/js?callback=initMap&key="
 def index():
 
 	if request.method == 'GET':
-		return render_template('index.html', poi=0, center={'lat':40.749364, 'lng':-73.987687} )
+		return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687} )
 
 	else:
 		loc1, loc2   =  request.form['loc1'], request.form['loc2']
@@ -73,7 +73,7 @@ def index():
 			
 			sort_order = np.argsort(dot)[::-1]
 
-		return render_template('index.html', poi = simplejson.dumps(pois), order = sort_order, center={'lat':midPoint[0],'lng':midPoint[1]} )
+		return render_template('index.html', poi = simplejson.dumps(pois), order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
 
 if __name__ == "__main__":
 	app.run(debug=True)
