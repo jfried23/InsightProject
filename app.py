@@ -34,6 +34,9 @@ def index():
 		loc2_geo = googlePOI.geocodeFromName(loc2)
 
 		midPoint, dist = MidPoint.searchMidPoint(loc1, loc2, gMapsKey, time='now', mode = transit_mode)
+		d1 = MidPoint.getDirections(str(loc1_geo).replace(',', ' '), str(midPoint).replace(',', ' '), gMapsKey, time='now', mode = transit_mode)
+		print d1
+		print str(loc1_geo).replace(',', ' '), str(midPoint).replace(',', ' ')
 
 		if dist < 50000: dist= 500
 
@@ -44,7 +47,6 @@ def index():
 
 
 		if pois['status'] =='OK':
-			print pois
 			scores = np.zeros((len(pois['results']), 2))
 
 			for idx, p in enumerate(pois['results']):
