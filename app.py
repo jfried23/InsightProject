@@ -25,8 +25,8 @@ def index():
 		loc1, loc2   =  request.form['loc1'], request.form['loc2']
 		query       =  request.form['query']
 		transit_mode =  request.form['transit_mode']
-		price        =  request.form['price']
-		review       =  request.form['review']
+		#price        =  request.form['price']
+		#review       =  request.form['review']
 
 		currentHour = int(time.strftime("%H"))
 
