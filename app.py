@@ -44,6 +44,7 @@ def index():
 
 
 		if pois['status'] =='OK':
+			print pois
 			scores = np.zeros((len(pois['results']), 2))
 
 			for idx, p in enumerate(pois['results']):
