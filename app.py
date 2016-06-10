@@ -39,7 +39,7 @@ def index():
 
 		for i in range(5):
 			pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=dist + i*.05*dist, minprice=0, maxprice=4)
-			if (len(pois['results']) > 2) & (pois['status'] =='OK'): break
+			if (len(pois['results']) > 0) & (pois['status'] =='OK'): break
 			i+=1
 
 
@@ -73,6 +73,9 @@ def index():
 			dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
 			
 			sort_order = np.argsort(dot)[::-1]
+
+			for i, p in enumerate(pois['results']):
+				pois['results'][i]['sim_score'] = round(dot[i],2)
 
 
 
