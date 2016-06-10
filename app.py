@@ -3,6 +3,7 @@ import MidPoint
 import simplejson
 import time
 import numpy as np
+import sqlalchemy
 
 import googlePOI
 
@@ -34,16 +35,16 @@ def index():
 
 		midPoint, dist = MidPoint.searchMidPoint(loc1, loc2, gMapsKey, time='now', mode = transit_mode)
 
-		if dist < 10000: dist= 500
+		if dist < 50000: dist= 500
 
 		for i in range(5):
-			pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=dist+i*dist*.05, minprice=0, maxprice=4)
-			if (len(pois['results']) > 0) & (pois['status'] =='OK'): break
+			pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=dist + i*.05*dist, minprice=0, maxprice=4)
+			if (len(pois['results']) > 2) & (pois['status'] =='OK'): break
 			i+=1
 
 
 		if pois['status'] =='OK':
-			scores = np.zeros((len(pois['results']), 3))
+			scores = np.zeros((len(pois['results']), 2))
 
 			for idx, p in enumerate(pois['results']):
 			
@@ -53,15 +54,26 @@ def index():
 				try: scores[idx][1] = float(p['rating'])
 				except: pass
 
-				try: scores[idx][2] = float(p['opening_hours']['open_now'])
-				except: pass
 
-			print scores
-			print price, review
+			conn = sqlalchemy.create_engine('postgresql:///insight')
+			s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])
+			a=conn.execute(s).fetchall()
+			
 
+			try:
+				s = 'select avg(score), avg(price) from user_choice where reigon_id = %i' %(a[0][0])
+				avg_score=conn.execute(s).fetchall()
+			except: 
+				s = 'select avg(score), avg(price) from user_choice'
+				avg_score=conn.execute(s).fetchall()
 
+			avg_score = np.array([float(v) for v in avg_score[0]])
 
-		return render_template('index.html', poi = simplejson.dumps(pois), center={'lat':midPoint[0],'lng':midPoint[1]} )
+			dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
+			
+			sort_order = np.argsort(dot)[::-1]
+
+		return render_template('index.html', poi = simplejson.dumps(pois), order = sort_order, center={'lat':midPoint[0],'lng':midPoint[1]} )
 
 if __name__ == "__main__":
 	app.run(debug=True)
