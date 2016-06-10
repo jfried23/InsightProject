@@ -74,6 +74,8 @@ def index():
 			
 			sort_order = np.argsort(dot)[::-1]
 
+
+
 		return render_template('index.html', poi = simplejson.dumps(pois), order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
 
 if __name__ == "__main__":

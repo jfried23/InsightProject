@@ -220,14 +220,36 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
 
 
         
-        var poi = {{poi|safe}};
+        var poi   = {{poi|safe}};
+        var order = {{order|safe}} 
+
+        var names =['rank','name', 'rating', 'price_level']
+        d3.selectAll('#tbody')
+          .selectAll('tr')
+          .data( order.map(function(d){return d;} ) )
+          .enter()
+          .append('tr')
+          .selectAll('td')
+          .data( function(d, i){ return [i+1, poi.results[d]['name'], poi.results[d]['rating'], poi.results[d]['price_level']  ] }  )
+          .enter()
+          .append('td')
+          .text( function(d){return d;});
+
+
+
+            //order.map(function(d, i){ return [i+1, poi['results'][d]['name'], poi['results'][d]['rating'], poi['results'][d]['price_level'] ] } ) );
+
+        d3.selectAll('#tbody')
+          .selectAll('tr')
+          .data( d3.range(0, order.length) )
+          .exit()
+          .remove();
+
+
+
         if (poi != 0 ){ 
 
           callback( poi['results'], poi['status'], map ); 
-
-
-
-
         };
 
 
