@@ -3,26 +3,41 @@ import simplejson
 import polyline
 import time
 
-def getDirections( start, stop, key, time='now', mode='transit'):
+def getDirections( p1, p2, key, time='now', mode='transit'):
+	"""
+	Returns json formmated travel directions from google.
+		p1     --- tuple representing gps corrdinates (lat, long) representing starting point
+		p2     --- tuple representing gps corrdinates (lat, long) representing ending point
+		key    --- google API key
+		time   --- time of day. Default = 'now'
+		mode   --- key word describing the means of travel ['driving','walking','bicycling','transit']
+	"""
 	
-	start    = start.replace(' ','+')
-	stop     = stop.replace(' ','+')
+	start    = '%s,%s' %( p1[0], p1[1])
+	stop     = '%s,%s' %( p2[0], p2[1])
 	htp      = "https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&mode=%s&departure_time=%s&key=%s" %(start, stop, mode, time, key)
 	jsonData = simplejson.loads( urllib2.urlopen(htp).read() )
-
-	return jsonData
+	if jsonData['status'] != 'OK': return None
+	else: return jsonData
 
 def searchMidPoint(start, stop, key, mode='transit', time=time):
 		jsonDir = getDirections( start, stop, key, time=time, mode = mode )
+
+		if jsonDir == None: raise ValueError('No path found!')
+
+		elif jsonDir['status'] == 'ZERO_RESULTS':
+			jsonDir = getDirections( start, stop, key, time=time, mode = 'WALKING' )
+
+
 		if jsonDir['status'] == 'OK':
 			gps  =  findMidPoint(jsonDir) 
 			return gps
 
+		else: return None
+
 def findMidPoint( jsonDir ):
-
-
+	try:
 		steps = jsonDir['routes'][0]['legs'][0]['steps']
-
 
 		#First pass through all steps to find step containing midpoint
 		lenOfStep = []
@@ -49,7 +64,9 @@ def findMidPoint( jsonDir ):
 		else:           netTime = 1.*trip_time
 
 		avg_time_per_point = midStep['duration']['value']/len(points)*1.
+		
 		midIndex = int(round(netTime/(avg_time_per_point)))
+		while midIndex > len(points) - 1: midIndex -=1
 		
 		midPointGPS =  points[midIndex]  #GPS corrdinates of middle point
 
@@ -61,7 +78,8 @@ def findMidPoint( jsonDir ):
 
 		dist = jsonDir['routes'][0]['legs'][0]['distance']['value']*0.5
 
-		return midPointGPS, dist  
+		return midPointGPS, dist
+	except: return None  
 
 if __name__ == '__main__':
 	keys = simplejson.load( open('./static/keys.json') )
@@ -78,7 +96,8 @@ if __name__ == '__main__':
 
 	if getFresh:
 		j = getDirections(start, stop, gMapsKey, time=int(time.time()+5) )
-		open('dir.data','w').write( simplejson.dumps(j) )
+		print j
+		#open('dir.data','w').write( simplejson.dumps(j) )
 	else:
 		j = simplejson.loads( open('dir.data','r').read() )
 

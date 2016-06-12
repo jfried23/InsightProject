@@ -2,9 +2,15 @@ import urllib2
 import simplejson
 
 def searchNearBy(key, keyWord, gpsCorr, radius=500, minprice=0, maxprice=4):
+	"""
+	Preforms a google places search, returing a json representation of the results.
+	"""
 	keyWord = keyWord.replace(' ','+')
 	htp = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&keyword=%s&minprice=%i&maxprice=%i&key=%s' %(gpsCorr[0],gpsCorr[1],radius,keyWord,minprice,maxprice,key)
-	return simplejson.loads( urllib2.urlopen(htp).read() )
+	results = simplejson.loads( urllib2.urlopen(htp).read() )
+
+	if results['status'] != 'OK': raise ValueError
+	else: return results
 
 def geocodeFromName(address):
 	h = "http://maps.google.com/maps/api/geocode/json?address=%s&sensor=false" % (address.replace(' ','+'))
@@ -12,6 +18,7 @@ def geocodeFromName(address):
 	if data['status'] == 'OK':
 		corr = data['results'][0]['geometry']['location']
 		return (corr['lat'], corr['lng'])
+	else: raise ValueError
 
 if __name__ == '__main__':
 
@@ -19,8 +26,11 @@ if __name__ == '__main__':
 	pos = (40.73033, -73.99263)
 	keyword = 'pizza'
 
+	keys = simplejson.loads( open('./static/keys.json').read() )
+	gMapsKey=keys['GMapsApiKey']
 	print geocodeFromName('545 1st ave, new york ny')
+	#print geocodeFromName('sdlkjhg askjhl')
 
-	#json = searchNearBy(gMapsKey, keyword, pos, radius=1000)
-	#print json
+	json = searchNearBy(gMapsKey, keyword, pos, radius=1000)
+	print json
 	#open('./data.json','w').write( simplejson.dumps(json) )

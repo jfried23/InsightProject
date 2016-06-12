@@ -76,7 +76,10 @@
   <p></p>
     <h1>Meet you there</h1>
     <p class="lead">
-    Enter your search paramters below to find your meeting place. 
+	     <p id=error > 
+            {{msg|safe}} ;
+      </p>
+      <p>Enter your search paramters below to find your meeting place.</p> 
     </p>
   </div>
   <form class="form-horizontal" role="form" method='post' action='/' >
@@ -174,6 +177,7 @@
 
             var infowindow;
             var center = {{center|safe}};
+
 
             var mapOptions = {
                 center: new google.maps.LatLng(center.lat, center.lng),

@@ -19,33 +19,38 @@ callStr = "https://maps.googleapis.com/maps/api/js?callback=initMap&key="
 def index():
 
 	if request.method == 'GET':
-		return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687} )
+		return render_template('index.html', msg='', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687} )
 
 	else:
+
 		loc1, loc2   =  request.form['loc1'], request.form['loc2']
-		query       =  request.form['query']
+		query        =  request.form['query']
 		transit_mode =  request.form['transit_mode']
-		#price        =  request.form['price']
-		#review       =  request.form['review']
 
 		currentHour = int(time.strftime("%H"))
 
-		loc1_geo = googlePOI.geocodeFromName(loc1)
-		loc2_geo = googlePOI.geocodeFromName(loc2)
+		#try to fail gracefully
+		try: loc1_geo = googlePOI.geocodeFromName(loc1)
+		except: return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
+			msg=simplejson.dumps({'msg':'Sorry I couldnt find the location %s in the database. Please try with new position.' %(loc1)}) )
 
-		midPoint, dist = MidPoint.searchMidPoint(loc1, loc2, gMapsKey, time='now', mode = transit_mode)
-		d1 = MidPoint.getDirections(str(loc1_geo).replace(',', ' '), str(midPoint).replace(',', ' '), gMapsKey, time='now', mode = transit_mode)
-		print d1
-		print str(loc1_geo).replace(',', ' '), str(midPoint).replace(',', ' ')
+		try: loc2_geo = googlePOI.geocodeFromName(loc2)
+		except: return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
+			msg=simplejson.dumps({'msg': 'Sorry I couldnt find the location %s in the database. Please try with new position.' %(loc2) }) )
 
+
+		midPoint, dist = MidPoint.searchMidPoint(loc1_geo, loc2_geo, gMapsKey, time='now', mode = transit_mode)
+		d1 = MidPoint.getDirections(loc1_geo, loc2_geo, gMapsKey, time='now', mode = transit_mode)
+	
 		if dist < 50000: dist= 500
 
 		for i in range(5):
 			pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=dist + i*.05*dist, minprice=0, maxprice=4)
+
 			if (len(pois['results']) > 0) & (pois['status'] =='OK'): break
 			i+=1
 
-
+		sort_order = 0
 		if pois['status'] =='OK':
 			scores = np.zeros((len(pois['results']), 2))
 
@@ -80,8 +85,9 @@ def index():
 				pois['results'][i]['sim_score'] = round(dot[i],2)
 
 
-
-		return render_template('index.html', poi = simplejson.dumps(pois), order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
-
+		if len(pois['results']) > 0:
+			return render_template('index.html', msg='', poi = simplejson.dumps(pois), order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
+		else:
+			return render_template('index.html', msg='',poi=0, sort_order=0, center={'lat':midPoint[0], 'lng':midPoint[1]} )
 if __name__ == "__main__":
 	app.run(debug=True)
