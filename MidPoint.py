@@ -20,6 +20,15 @@ def getDirections( p1, p2, key, time='now', mode='transit'):
 	if jsonData['status'] != 'OK': print jsonData; raise ValueError
 	else: return jsonData
 
+def getDirectionsWithWayPoint( p1, wp, p2, key,  mode1='transit'):
+	start    = '%s,%s' %( p1[0], p1[1])
+	waypoint = '%s,%s' %( wp[0], wp[1])
+	stop     = '%s,%s' %( p2[0], p2[1])
+	htp = "https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&waypoints=%s&key=%s" %( start, stop, waypoint, key)
+	jsonData = simplejson.loads( urllib2.urlopen(htp).read() )
+
+	return jsonData
+
 def searchMidPoint(start, stop, key, mode='transit', time=time):
 		jsonDir = getDirections( start, stop, key, time=time, mode = mode )
 
@@ -85,7 +94,7 @@ if __name__ == '__main__':
 	keys = simplejson.load( open('./static/keys.json') )
 	gMapsKey = keys['GMapsApiKey']
 	
-
+	""""
 	start = 'Midtwon East New York'
 	stop  = 'Brighton beach ny'
 
@@ -102,3 +111,12 @@ if __name__ == '__main__':
 		j = simplejson.loads( open('dir.data','r').read() )
 
 	print findMidPoint(j), time.time(), time.strftime("%H") > 12
+	"""
+
+
+
+	start = (40.715033, -73.9842724)
+	stop  = (40.7735649, -73.9565551)
+	pois =[(40.7330792,  -73.9979103)]
+
+	print getDirectionsWithWayPoint(start, pois[0], stop, gMapsKey)

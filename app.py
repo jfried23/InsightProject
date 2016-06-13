@@ -10,10 +10,9 @@ import googlePOI
 
 app = Flask(__name__)
 
+#Load the API keys
 keys = simplejson.load( open('./static/keys') )
-
 gMapsKey = keys['GMapsApiKey']
-callStr = "https://maps.googleapis.com/maps/api/js?callback=initMap&key="
 
 @app.route('/', methods=['GET','POST'])
 def index():
@@ -56,49 +55,54 @@ def index():
 			if (len(pois['results']) > 0) & (pois['status'] =='OK'): break
 
 		#if no points of intrest found route back to stating page
-		if pois['status'] == 'ZERO_RESULTS': 
+		if pois['status'] != 'OK': 
 			return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
 			msg='No establishments matching the query <font color=red> \"%s\" </font> were not found.' %(query)) 
 
 
+		#if we made it here pois status == OK
+		
+		#Populate the scoring matrix
+		
+		print loc1_geo, loc2_geo
+
 		sort_order = 0
-		if pois['status'] =='OK':
-			scores = np.zeros((len(pois['results']), 2))
+		scores = np.zeros((len(pois['results']), 2))
+		for idx, p in enumerate(pois['results']):
+		
+			print p['geometry']['location']
 
-			for idx, p in enumerate(pois['results']):
+			try: scores[idx][0] = float(p['price_level'])
+			except: pass
+
+			try: scores[idx][1] = float(p['rating'])
+			except: pass
+
+
+		conn = sqlalchemy.create_engine('postgresql:///insight')
+		s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])
+		a=conn.execute(s).fetchall()
 			
-				try: scores[idx][0] = float(p['price_level'])
-				except: pass
 
-				try: scores[idx][1] = float(p['rating'])
-				except: pass
+		try:
+			s = 'select avg(score), avg(price) from user_choice where reigon_id = %i' %(a[0][0])
+			avg_score=conn.execute(s).fetchall()
+		except: 
+			s = 'select avg(score), avg(price) from user_choice'
+			avg_score=conn.execute(s).fetchall()
 
+		avg_score = np.array([float(v) for v in avg_score[0]])
 
-			conn = sqlalchemy.create_engine('postgresql:///insight')
-			s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])
-			a=conn.execute(s).fetchall()
+		dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
 			
+		sort_order = np.argsort(dot)[::-1]
 
-			try:
-				s = 'select avg(score), avg(price) from user_choice where reigon_id = %i' %(a[0][0])
-				avg_score=conn.execute(s).fetchall()
-			except: 
-				s = 'select avg(score), avg(price) from user_choice'
-				avg_score=conn.execute(s).fetchall()
-
-			avg_score = np.array([float(v) for v in avg_score[0]])
-
-			dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
-			
-			sort_order = np.argsort(dot)[::-1]
-
-			for i, p in enumerate(pois['results']):
-				pois['results'][i]['sim_score'] = round(dot[i],2)
+		for i, p in enumerate(pois['results']):
+			pois['results'][i]['sim_score'] = round(dot[i],2)
 
 
-		if len(pois['results']) > 0:
-			return render_template('index.html', msg='', poi = simplejson.dumps(pois), sort_order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
-		else:
-			return render_template('index.html', msg='',poi=0, sort_order=0, center={'lat':midPoint[0], 'lng':midPoint[1]} )
+		
+		return render_template('index.html', msg='', poi = simplejson.dumps(pois), sort_order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
+		
 if __name__ == "__main__":
 	app.run(debug=True)
