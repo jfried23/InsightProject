@@ -64,16 +64,10 @@ def index():
 		
 		#Populate the scoring matrix
 		sort_order = 0
-		scores = np.zeros((len(pois['results']), 2))
+		scores = np.zeros((len(pois['results']), 3))
 		for idx, p in enumerate(pois['results']):
 		
 			wp =  (p['geometry']['location']['lat'], p['geometry']['location']['lng'])
-
-			try: scores[idx][0] = float(p['price_level'])
-			except: pass
-
-			try: scores[idx][1] = float(p['rating'])
-			except: pass
 
 			
 			direct = MidPoint.getDirectionsWithWayPoint( loc1_geo, wp, loc2_geo, gMapsKey,  mode1=transit_mode, mode2=transit_mode)
@@ -84,15 +78,25 @@ def index():
 			for dd in direct[1]['routes'][0]['legs']: t2 += dd['duration']['value']
 
 			pois['results'][idx]['duration']    = [t1,t2]
+			pois['results'][idx]['fairness']    = int(100*round(min([t1,t2])/max([t1,t2]),2))
 			pois['results'][idx]['path']        = { 'points1': direct[0]['routes'][0]['overview_polyline']['points'], 
 									     'points2': direct[1]['routes'][0]['overview_polyline']['points'] } 
-										
+
+			try: scores[idx][0] = float(p['price_level'])
+			except: pass
+
+			try: scores[idx][1] = float(p['rating'])
+			except: pass
+
+			try: scores[idx][2] = min([t1,t2])/max([t1,t2])
+			except: pass
+
 			#Also get directions to and from the poi
 
 		##temp write pois to json
-		h=open('pois.json','w')
-		h.write(simplejson.dumps(pois))
-		h.close()
+		#h=open('pois.json','w')
+		#h.write(simplejson.dumps(pois))
+		#h.close()
 
 		conn = sqlalchemy.create_engine('postgresql:///insight')
 		s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])
@@ -100,10 +104,10 @@ def index():
 			
 
 		try:
-			s = 'select avg(score), avg(price) from user_choice where reigon_id = %i' %(a[0][0])
+			s = 'select avg(score), avg(price), 10 from user_choice where reigon_id = %i' %(a[0][0])
 			avg_score=conn.execute(s).fetchall()
 		except: 
-			s = 'select avg(score), avg(price) from user_choice'
+			s = 'select avg(score), avg(price), 10 from user_choice'
 			avg_score=conn.execute(s).fetchall()
 
 		avg_score = np.array([float(v) for v in avg_score[0]])

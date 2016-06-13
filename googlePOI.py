@@ -6,7 +6,7 @@ def searchNearBy(key, keyWord, gpsCorr, radius=500, minprice=0, maxprice=4):
 	Preforms a google places search, returing a json representation of the results.
 	"""
 	keyWord = keyWord.replace(' ','+')
-	htp = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&keyword=%s&minprice=%i&maxprice=%i&key=%s' %(gpsCorr[0],gpsCorr[1],radius,keyWord,minprice,maxprice,key)
+	htp = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?opennow=true&location=%f,%f&radius=%f&keyword=%s&minprice=%i&maxprice=%i&key=%s' %(gpsCorr[0],gpsCorr[1],radius,keyWord,minprice,maxprice,key)
 	results = simplejson.loads( urllib2.urlopen(htp).read() )
 	return results
 
