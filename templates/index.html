@@ -16,14 +16,14 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <!--link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"-->
 
     <!-- Custom styles for this template -->
     <link href="/static/css/index.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
+    <!-- script src="../../assets/js/ie-emulation-modes-warning.js"></script -->
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -76,10 +76,8 @@
   <p></p>
     <h1>Meet you there</h1>
     <p class="lead">
-	     <p id=error > 
-            {{msg|safe}} ;
-      </p>
-      <p>Enter your search paramters below to find your meeting place.</p> 
+	<p id=error > {{msg|safe}} </p>
+    <p>Enter your search paramters below to find your meeting place.</p> 
     </p>
   </div>
   <form class="form-horizontal" role="form" method='post' action='/' >
@@ -162,9 +160,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="../../dist/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+    <!-- script src="../../assets/js/ie10-viewport-bug-workaround.js"></script-->
 
     <script>
       var input1 = document.getElementById('inputAddress1');
@@ -177,7 +175,6 @@
 
             var infowindow;
             var center = {{center|safe}};
-
 
             var mapOptions = {
                 center: new google.maps.LatLng(center.lat, center.lng),
@@ -199,8 +196,9 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
 
         
         var poi   = {{poi|safe}};
-        var order = {{order|safe}} 
+        var order = {{sort_order|safe}};
 
+        if ( poi != 0 ){
         d3.selectAll('#tbody')
           .selectAll('tr')
           .data( order.map(function(d){return d;} ) )
@@ -211,7 +209,7 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
           .enter()
           .append('td')
           .text( function(d){return d;});
-
+        
 
 
             //order.map(function(d, i){ return [i+1, poi['results'][d]['name'], poi['results'][d]['rating'], poi['results'][d]['price_level'] ] } ) );
@@ -223,10 +221,9 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
           .remove();
 
 
-
-        if (poi != 0 ){ 
-
           callback( poi['results'], poi['status'], map ); 
+        
+
         };
 
 

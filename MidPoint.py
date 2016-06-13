@@ -17,7 +17,7 @@ def getDirections( p1, p2, key, time='now', mode='transit'):
 	stop     = '%s,%s' %( p2[0], p2[1])
 	htp      = "https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&mode=%s&departure_time=%s&key=%s" %(start, stop, mode, time, key)
 	jsonData = simplejson.loads( urllib2.urlopen(htp).read() )
-	if jsonData['status'] != 'OK': return None
+	if jsonData['status'] != 'OK': print jsonData; raise ValueError
 	else: return jsonData
 
 def searchMidPoint(start, stop, key, mode='transit', time=time):
@@ -79,7 +79,7 @@ def findMidPoint( jsonDir ):
 		dist = jsonDir['routes'][0]['legs'][0]['distance']['value']*0.5
 
 		return midPointGPS, dist
-	except: return None  
+	except: raise ValueError  
 
 if __name__ == '__main__':
 	keys = simplejson.load( open('./static/keys.json') )

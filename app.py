@@ -32,23 +32,34 @@ def index():
 		#try to fail gracefully
 		try: loc1_geo = googlePOI.geocodeFromName(loc1)
 		except: return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
-			msg=simplejson.dumps({'msg':'Sorry I couldnt find the location %s in the database. Please try with new position.' %(loc1)}) )
+			msg='The starting location <font color="red"> %s </font> was not found. Please try with new position description.' %(loc1)) 
 
 		try: loc2_geo = googlePOI.geocodeFromName(loc2)
 		except: return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
-			msg=simplejson.dumps({'msg': 'Sorry I couldnt find the location %s in the database. Please try with new position.' %(loc2) }) )
+			msg='The starting location  <font color="red"> %s </font> was not found. Please try with new position description' %(loc2)) 
 
 
-		midPoint, dist = MidPoint.searchMidPoint(loc1_geo, loc2_geo, gMapsKey, time='now', mode = transit_mode)
-		d1 = MidPoint.getDirections(loc1_geo, loc2_geo, gMapsKey, time='now', mode = transit_mode)
+		try:
+			midPoint, dist = MidPoint.searchMidPoint(loc1_geo, loc2_geo, gMapsKey, time='now', mode = transit_mode)
+		except:
+			return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
+			msg='No <font color=red> %s </font> directions were found between %s and %s.' %(transit_mode,loc1, loc2)) 
+
+		#d1 = MidPoint.getDirections(loc1_geo, loc2_geo, gMapsKey, time='now', mode = transit_mode)
 	
 		if dist < 50000: dist= 500
+
 
 		for i in range(5):
 			pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=dist + i*.05*dist, minprice=0, maxprice=4)
 
 			if (len(pois['results']) > 0) & (pois['status'] =='OK'): break
-			i+=1
+
+		#if no points of intrest found route back to stating page
+		if pois['status'] == 'ZERO_RESULTS': 
+			return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
+			msg='No establishments matching the query <font color=red> \"%s\" </font> were not found.' %(query)) 
+
 
 		sort_order = 0
 		if pois['status'] =='OK':
@@ -86,7 +97,7 @@ def index():
 
 
 		if len(pois['results']) > 0:
-			return render_template('index.html', msg='', poi = simplejson.dumps(pois), order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
+			return render_template('index.html', msg='', poi = simplejson.dumps(pois), sort_order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
 		else:
 			return render_template('index.html', msg='',poi=0, sort_order=0, center={'lat':midPoint[0], 'lng':midPoint[1]} )
 if __name__ == "__main__":
