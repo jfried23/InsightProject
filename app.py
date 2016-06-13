@@ -58,8 +58,6 @@ def index():
 		if pois['status'] != 'OK': 
 			return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
 			msg='No establishments matching the query <font color=red> \"%s\" </font> were not found.' %(query)) 
-
-		print pois
 		#if we made it here pois status == OK
 		
 		#Populate the scoring matrix

@@ -37,7 +37,17 @@ def getDirectionsWithWayPoint( p1, wp, p2, key,  mode1='transit', mode2='transit
 	return directions
 
 def searchMidPoint(start, stop, key, mode='transit', time=time):
-		jsonDir = getDirections( start, stop, key, time=time, mode = mode )
+		jsonDir1 = getDirections( start, stop, key, time=time, mode = mode )
+		jsonDir2 = getDirections( stop, start, key, time=time, mode = mode )
+
+		t1=0.0
+		t2=0.0
+		
+		for f in jsonDir1['routes'][0]['legs']: t1+= f['duration']['value']
+		for f in jsonDir2['routes'][0]['legs']: t2+= f['duration']['value']
+
+		if t1 > t2: jsonDir = jsonDir1
+		else: jsonDir = jsonDir2
 
 		if jsonDir == None: raise ValueError('No path found!')
 
@@ -126,8 +136,10 @@ if __name__ == '__main__':
 	stop  = (40.7735649, -73.9565551)
 	pois =[(40.7330792,  -73.9979103)]
 
+	dr = getDirections( start, stop, gMapsKey, time='now', mode='transit')
+
 	h=open('wayPoint.json','w')
  
-	h.write( simplejson.dumps( getDirectionsWithWayPoint(start, pois[0], stop, gMapsKey) ) )
+	h.write( simplejson.dumps( dr) )
 
 	h.close()
