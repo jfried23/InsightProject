@@ -59,18 +59,15 @@ def index():
 			return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
 			msg='No establishments matching the query <font color=red> \"%s\" </font> were not found.' %(query)) 
 
-
+		print pois
 		#if we made it here pois status == OK
 		
 		#Populate the scoring matrix
-		
-		print loc1_geo, loc2_geo
-
 		sort_order = 0
 		scores = np.zeros((len(pois['results']), 2))
 		for idx, p in enumerate(pois['results']):
 		
-			print p['geometry']['location']
+			wp =  (p['geometry']['location']['lat'], p['geometry']['location']['lng'])
 
 			try: scores[idx][0] = float(p['price_level'])
 			except: pass
@@ -78,6 +75,24 @@ def index():
 			try: scores[idx][1] = float(p['rating'])
 			except: pass
 
+			
+			direct = MidPoint.getDirectionsWithWayPoint( loc1_geo, wp, loc2_geo, gMapsKey,  mode1=transit_mode, mode2=transit_mode)
+
+			#Calculate the travel time for each person
+			t1,t2=0.0,0.0
+			for dd in direct[0]['routes'][0]['legs']: t1 += dd['duration']['value']
+			for dd in direct[1]['routes'][0]['legs']: t2 += dd['duration']['value']
+
+			pois['results'][idx]['duration']    = [t1,t2]
+			pois['results'][idx]['path']        = { 'points1': direct[0]['routes'][0]['overview_polyline']['points'], 
+									     'points2': direct[1]['routes'][0]['overview_polyline']['points'] } 
+										
+			#Also get directions to and from the poi
+
+		##temp write pois to json
+		h=open('pois.json','w')
+		h.write(simplejson.dumps(pois))
+		h.close()
 
 		conn = sqlalchemy.create_engine('postgresql:///insight')
 		s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])

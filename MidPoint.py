@@ -17,17 +17,24 @@ def getDirections( p1, p2, key, time='now', mode='transit'):
 	stop     = '%s,%s' %( p2[0], p2[1])
 	htp      = "https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&mode=%s&departure_time=%s&key=%s" %(start, stop, mode, time, key)
 	jsonData = simplejson.loads( urllib2.urlopen(htp).read() )
-	if jsonData['status'] != 'OK': print jsonData; raise ValueError
+	if jsonData['status'] != 'OK': raise ValueError
 	else: return jsonData
 
-def getDirectionsWithWayPoint( p1, wp, p2, key,  mode1='transit'):
+def getDirectionsWithWayPoint( p1, wp, p2, key,  mode1='transit', mode2='transit'):
+	"""
+	Returns a list with directions to [0] and away [1] from the midpoint
+	"""
+	directions=[]
 	start    = '%s,%s' %( p1[0], p1[1])
 	waypoint = '%s,%s' %( wp[0], wp[1])
 	stop     = '%s,%s' %( p2[0], p2[1])
-	htp = "https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&waypoints=%s&key=%s" %( start, stop, waypoint, key)
-	jsonData = simplejson.loads( urllib2.urlopen(htp).read() )
+	htp1     = "https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&mode=%s&key=%s" %(start, waypoint, mode1, key)
+	htp2     = "https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&mode=%s&key=%s" %(stop, waypoint, mode2, key)
 
-	return jsonData
+	directions.append( simplejson.loads( urllib2.urlopen(htp1).read() ) )
+	directions.append( simplejson.loads( urllib2.urlopen(htp2).read() ) )
+
+	return directions
 
 def searchMidPoint(start, stop, key, mode='transit', time=time):
 		jsonDir = getDirections( start, stop, key, time=time, mode = mode )
@@ -119,4 +126,8 @@ if __name__ == '__main__':
 	stop  = (40.7735649, -73.9565551)
 	pois =[(40.7330792,  -73.9979103)]
 
-	print getDirectionsWithWayPoint(start, pois[0], stop, gMapsKey)
+	h=open('wayPoint.json','w')
+ 
+	h.write( simplejson.dumps( getDirectionsWithWayPoint(start, pois[0], stop, gMapsKey) ) )
+
+	h.close()

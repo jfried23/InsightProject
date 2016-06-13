@@ -143,6 +143,9 @@
           <th>Name</th>
           <th>Average Review</th>
           <th>Price Range</th>
+          <th>Your Estimated Travel (minutes)</th>
+          <th>Their Estimated Travel (minutes)</th>
+
         </tr>
       </thead>
       <tbody id='tbody'></tbody>
@@ -205,7 +208,7 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
           .enter()
           .append('tr')
           .selectAll('td')
-          .data( function(d, i){ return [i+1, poi.results[d]['sim_score'], poi.results[d]['name'], poi.results[d]['rating'], poi.results[d]['price_level']  ] }  )
+          .data( function(d, i){ return [i+1, poi.results[d]['sim_score'], poi.results[d]['name'], poi.results[d]['rating'], poi.results[d]['price_level'],  Math.round(poi.results[d]['duration'][0]/60.), Math.round(poi.results[d]['duration'][1]/60.) ] }  )
           .enter()
           .append('td')
           .text( function(d){return d;});
