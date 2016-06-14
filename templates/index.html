@@ -143,9 +143,9 @@
           <th>Name</th>
           <th>Average Review</th>
           <th>Price Range</th>
-          <th>Your Estimated Travel (minutes)</th>
-          <th>Their Estimated Travel (minutes)</th>
-          <th>Travel Fairness</th>
+          <th>Your Travel Time (min.)</th>
+          <th>Their Travel Time (min.)</th>
+          <th>Travel Fairness (%)</th>
         </tr>
       </thead>
       <tbody id='tbody'></tbody>
@@ -201,6 +201,9 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
 
         var poi   = {{poi|safe}};
         var order = {{sort_order|safe}};
+
+        var headers =[ 'Your Ranking','Similarity Score','Name','Price Level','Your Travel Time (min)','Their Travel Time (min)', 'Travel Fairness (%)'];
+
 
         if ( poi != 0 ){
         d3.selectAll('#tbody')
@@ -288,12 +291,18 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
           infowindow.setContent( 
 
+
+
+
             "<h4>"+place.name+"</h4>"+
             "<p>Rating: " +place.rating+" / 5</p>" + 
             "<p>Price: " + place.price_level+" / 4</p>"+
             "<p>"+ place.vicinity +"</p>" +
             "<p>You travel : "+ Math.round(place.duration[0]/60.) +" min.</p>" +
-            "<p>They travel: "+ Math.round(place.duration[1]/60.) +" min.</p>"
+            "<p>They travel: "+ Math.round(place.duration[1]/60.) +" min.</p>" 
+
+           // + "<form action=\"\\directions\" method=\"post\">"+
+            //"<input contentType: \'application/json\' type=\"submit\" value=\"" + String(JSON.stringify(place)) +  "\" name=\"get_place\">" + " </form>"
 
              );
           infowindow.open(map, this);

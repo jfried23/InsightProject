@@ -14,6 +14,20 @@ app = Flask(__name__)
 keys = simplejson.load( open('./static/keys') )
 gMapsKey = keys['GMapsApiKey']
 
+#pois = {'status':'Bad'} 
+
+@app.route("/directions", methods=['GET','POST'])
+def getDirections():
+	print "Back where I belong."
+	#app.logger.debug(request.json)
+	#app.logger.debug(request.json)
+	print request.form['get_place']
+	#print request.json()
+	#print pois['results'][content]
+
+	return render_template('index.html', msg='', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687} )
+
+
 @app.route('/', methods=['GET','POST'])
 def index():
 
@@ -47,12 +61,12 @@ def index():
 		#d1 = MidPoint.getDirections(loc1_geo, loc2_geo, gMapsKey, time='now', mode = transit_mode)
 	
 		if dist < 50000: dist= 500
-
+		print midPoint
 
 		for i in range(5):
 			pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=dist + i*.05*dist, minprice=0, maxprice=4)
 
-			if (len(pois['results']) > 0) & (pois['status'] =='OK'): break
+			if (len(pois['results']) > 3) & (pois['status'] =='OK'): break
 
 		#if no points of intrest found route back to stating page
 		if pois['status'] != 'OK': 
@@ -89,12 +103,6 @@ def index():
 			try: scores[idx][2] = min([t1,t2])/max([t1,t2])
 			except: pass
 
-			#Also get directions to and from the poi
-
-		##temp write pois to json
-		#h=open('pois.json','w')
-		#h.write(simplejson.dumps(pois))
-		#h.close()
 
 		conn = sqlalchemy.create_engine('postgresql:///insight')
 		s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])
@@ -102,10 +110,10 @@ def index():
 			
 
 		try:
-			s = 'select avg(score), avg(price), 10 from user_choice where reigon_id = %i' %(a[0][0])
+			s = 'select avg(score), avg(price), 1.0 from user_choice where reigon_id = %i' %(a[0][0])
 			avg_score=conn.execute(s).fetchall()
 		except: 
-			s = 'select avg(score), avg(price), 10 from user_choice'
+			s = 'select avg(score), avg(price), 1.0 from user_choice'
 			avg_score=conn.execute(s).fetchall()
 
 		avg_score = np.array([float(v) for v in avg_score[0]])
@@ -116,8 +124,11 @@ def index():
 
 		for i, p in enumerate(pois['results']):
 			pois['results'][i]['sim_score'] = round(dot[i],2)
+			pois['results'][i]['idx_num'] = i
 
-
+		h=open('place.json','w')
+		h.write( simplejson.dumps(pois) )
+		h.close()
 		
 		return render_template('index.html', msg='', poi = simplejson.dumps(pois), sort_order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
 		

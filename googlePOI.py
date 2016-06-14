@@ -21,13 +21,13 @@ def geocodeFromName(address):
 if __name__ == '__main__':
 
 	radius = 500
-	pos = (40.73033, -73.99263)
-	keyword = 'ahdgsgdhj fakhalhja lkjfhs'
+	pos = (40.72892, -74.00859)
+	keyword = 'pizza'
 
 	keys = simplejson.loads( open('./static/keys.json').read() )
 	gMapsKey=keys['GMapsApiKey']
 	print geocodeFromName('545 1st ave, new york ny')
-	print geocodeFromName('sdlkjhg askjhl')
+	print geocodeFromName('upper west side, ny')
 
 	json = searchNearBy(gMapsKey, keyword, pos, radius=1000)
 	print json
