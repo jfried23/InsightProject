@@ -1,12 +1,16 @@
 from flask import Flask,render_template,request,redirect
+
 import MidPoint
+import googlePOI
+
 import simplejson
 import time
 import numpy as np
-import scipy as sp
+import pandas as pd
+
 import sqlalchemy
 
-import googlePOI
+
 
 
 app = Flask(__name__)
@@ -21,12 +25,15 @@ gMapsKey = keys['GMapsApiKey']
 def getDirections():
 	
 	data = request.json
-	print data['name']
-	#app.logger.debug(request.json)
-	#app.logger.debug(request.json)
-	#print request.form['get_place']
-	#print request.json()
-	#print pois['results'][content]
+	a = time.localtime()
+
+
+	#print time.strftime('%Y-%m-%d %H:%M:%S', a)
+	#print data['user'], data['rating'], data['price_level'], data['fairness'], a
+
+	conn = sqlalchemy.create_engine('postgresql:///yelp')
+	s = 'insert into users values (\'%s\', %f, %f, %f, \'%s\')' %(data['user'], data['rating'], data['price_level'], data['fairness']/100., time.strftime('%Y-%m-%d %H:%M:%S', a) )
+	a=conn.execute(s)
 
 	return render_template('index.html', msg='', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687} )
 
@@ -42,8 +49,7 @@ def index():
 		loc1, loc2   =  request.form['loc1'], request.form['loc2']
 		query        =  request.form['query']
 		transit_mode =  request.form['transit_mode']
-
-		currentHour = int(time.strftime("%H"))
+		userName     =  request.form['user_name']
 
 		#try to fail gracefully
 		try: loc1_geo = googlePOI.geocodeFromName(loc1)
@@ -133,6 +139,7 @@ def index():
 		for i, p in enumerate(pois['results']):
 			pois['results'][i]['sim_score'] = round(dot[i],2)
 			pois['results'][i]['idx_num'] = i
+			pois['results'][i]['user'] = userName
 
 		h=open('place.json','w')
 		h.write( simplejson.dumps(pois) )
