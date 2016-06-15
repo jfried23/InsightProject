@@ -19,8 +19,9 @@ gMapsKey = keys['GMapsApiKey']
 
 @app.route("/logChoice", methods=['GET','POST'])
 def getDirections():
-	print "Back where I belong."
-	print request.json
+	
+	data = request.json
+	print data['name']
 	#app.logger.debug(request.json)
 	#app.logger.debug(request.json)
 	#print request.form['get_place']

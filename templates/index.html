@@ -227,7 +227,7 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
                     .data( order.map(function(d){return d;} ) )
                     .enter()
                     .append('tr')
-                    .on('dblclick', function(d,i){showData(poi.results[d])}  )
+                    .on('dblclick', function(d,i){ showData(poi.results[order[d]]); }  )
                     .attr('id',function(d){ return d;});
 
         var tcols = trows
