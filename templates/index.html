@@ -203,27 +203,46 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
 
         var headers =[ 'Your Ranking','Similarity Score','Name','Price Level','Your Travel Time (min)','Their Travel Time (min)', 'Travel Fairness (%)'];
 
+        function showData( data){
+          
+          $.ajax({
+                  
+                  type: "POST",
+                  contentType: "application/json; charset=utf-8",
+                  url: "/logChoice",
+                  data: JSON.stringify(data),
+                  success: function (data) {
+                  console.log(data.title);
+                  console.log(data.article);
+                },
+                dataType: "json"
+                });
+        }
 
         if ( poi != 0 ){
-        d3.selectAll('#tbody')
-          .selectAll('tr')
-          .data( order.map(function(d){return d;} ) )
-          .enter()
-          .append('tr')
-          .on('dblclick', function(d){ console.log(d) } )
-          .attr('id',function(d){ return d;})
-          .selectAll('td')
-          .data( function(d, i){ return [i+1, poi.results[d]['sim_score'], poi.results[d]['name'], poi.results[d]['rating'], poi.results[d]['price_level'],  Math.round( d3.max( [poi.results[d]['duration'][0]/60., poi.results[d]['duration'][1]/60.]), 2), poi.results[d]['fairness'] ] }  )
-          .enter()
-          .append('td')
-          .text( function(d){return d;});
+        var tbody = d3.selectAll('#tbody');
+
+        var trows = tbody
+                    .selectAll('tr')
+                    .data( order.map(function(d){return d;} ) )
+                    .enter()
+                    .append('tr')
+                    .on('dblclick', function(d,i){showData(poi.results[d])}  )
+                    .attr('id',function(d){ return d;});
+
+        var tcols = trows
+                    .selectAll('td')
+                    .data( function(d, i){ return [i+1, poi.results[d]['sim_score'], poi.results[d]['name'], poi.results[d]['rating'], poi.results[d]['price_level'],  Math.round( d3.max( [poi.results[d]['duration'][0]/60., poi.results[d]['duration'][1]/60.]), 2), poi.results[d]['fairness'] ] }  )
+                    .enter()
+                    .append('td')
+                    .text( function(d){return d;});
         
+
 
 
             //order.map(function(d, i){ return [i+1, poi['results'][d]['name'], poi['results'][d]['rating'], poi['results'][d]['price_level'] ] } ) );
 
-        d3.selectAll('#tbody')
-          .selectAll('tr')
+          trows
           .data( d3.range(0, order.length) )
           .exit()
           .remove();
