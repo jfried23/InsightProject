@@ -30,10 +30,10 @@ def getDirections():
 
 	#print time.strftime('%Y-%m-%d %H:%M:%S', a)
 	#print data['user'], data['rating'], data['price_level'], data['fairness'], a
-
-	conn = sqlalchemy.create_engine('postgresql:///yelp')
-	s = 'insert into users values (\'%s\', %f, %f, %f, \'%s\')' %(data['user'], data['rating'], data['price_level'], data['fairness']/100., time.strftime('%Y-%m-%d %H:%M:%S', a) )
-	a=conn.execute(s)
+	if data['user'] != '':
+		conn = sqlalchemy.create_engine('postgresql:///yelp')
+		s = 'insert into users values (\'%s\', %f, %f, %f, \'%s\')' %(data['user'], data['rating'], data['price_level'], data['fairness']/100., time.strftime('%Y-%m-%d %H:%M:%S', a) )
+		a=conn.execute(s)
 
 	return render_template('index.html', msg='', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687} )
 
@@ -115,6 +115,8 @@ def index():
 			except: pass
 
 
+
+		#Now prepare user costimized ranking
 		conn = sqlalchemy.create_engine('postgresql:///insight')
 		s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])
 		a=conn.execute(s).fetchall()
