@@ -1,4 +1,7 @@
 keys
-
+*.key
+*.pem
 *.pyc
 *.json
+
+yelp

@@ -3,6 +3,7 @@ import MidPoint
 import simplejson
 import time
 import numpy as np
+import scipy as sp
 import sqlalchemy
 
 import googlePOI
@@ -16,12 +17,12 @@ gMapsKey = keys['GMapsApiKey']
 
 #pois = {'status':'Bad'} 
 
-@app.route("/directions", methods=['GET','POST'])
+@app.route("/logChoice", methods=['GET','POST'])
 def getDirections():
 	print "Back where I belong."
 	#app.logger.debug(request.json)
 	#app.logger.debug(request.json)
-	print request.form['get_place']
+	#print request.form['get_place']
 	#print request.json()
 	#print pois['results'][content]
 
@@ -76,6 +77,7 @@ def index():
 		
 		#Populate the scoring matrix
 		sort_order = 0
+		fairness = []
 		scores = np.zeros((len(pois['results']), 3))
 		for idx, p in enumerate(pois['results']):
 		
@@ -93,6 +95,7 @@ def index():
 			pois['results'][idx]['fairness']    = int(100*round(min([t1,t2])/max([t1,t2]),2))
 			pois['results'][idx]['path']        = { 'points1': direct[0]['routes'][0]['overview_polyline']['points'], 
 									     'points2': direct[1]['routes'][0]['overview_polyline']['points'] } 
+			fairness.append( min([t1,t2])/max([t1,t2]) )
 
 			try: scores[idx][0] = float(p['price_level'])
 			except: pass
@@ -118,9 +121,12 @@ def index():
 
 		avg_score = np.array([float(v) for v in avg_score[0]])
 
+		#print avg_score
+
 		dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
 			
-		sort_order = np.argsort(dot)[::-1]
+		#sort_order = np.argsort(dot)[::-1]
+		sort_order = np.argsort(fairness)[::-1]
 
 		for i, p in enumerate(pois['results']):
 			pois['results'][i]['sim_score'] = round(dot[i],2)
