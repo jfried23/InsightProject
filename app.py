@@ -51,6 +51,8 @@ def index():
 		transit_mode =  request.form['transit_mode']
 		userName     =  request.form['user_name']
 
+		catagory = 'Optimize'     
+
 		#try to fail gracefully
 		try: loc1_geo = googlePOI.geocodeFromName(loc1)
 		except: return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 
@@ -116,25 +118,24 @@ def index():
 
 
 
-		#Now prepare user costimized ranking
-		conn = sqlalchemy.create_engine('postgresql:///insight')
-		s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])
-		a=conn.execute(s).fetchall()
-			
+		#Now prepare user customized ranking
+		#conn = sqlalchemy.create_engine('postgresql:///insight')
+		#s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])
+		#a=conn.execute(s).fetchall()
+		conn = sqlalchemy.create_engine('postgresql:///yelp')
 
-		try:
-			s = 'select avg(score), avg(price), 1.0 from user_choice where reigon_id = %i' %(a[0][0])
-			avg_score=conn.execute(s).fetchall()
-		except: 
-			s = 'select avg(score), avg(price), 1.0 from user_choice'
-			avg_score=conn.execute(s).fetchall()
+		qr = "SELECT avg(review), avg(price), avg(fairness) FROM users WHERE name = \'%s\'" % (userName)
+		avg_score = pd.read_sql_query(qr, conn).as_matrix()
 
-		avg_score = np.array([float(v) for v in avg_score[0]])
 
-		#print avg_score
+		if avg_score[0][0] == None:
+			qr = "SELECT avgreview, avgcost, fairness FROM avg WHERE catagory = \'Optimize\'" #% (catagory) 
+			avg_score = pd.read_sql_query(qr, conn).as_matrix()
+
+		avg_score = avg_score[0]
 
 		dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
-			
+
 		#sort_order = np.argsort(dot)[::-1]
 		sort_order = np.argsort(fairness)[::-1]
 
