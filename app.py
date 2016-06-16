@@ -21,6 +21,14 @@ gMapsKey = keys['GMapsApiKey']
 
 #pois = {'status':'Bad'} 
 
+
+@app.route("/about")
+def about():
+	
+	return render_template('about.html')
+
+
+
 @app.route("/logChoice", methods=['GET','POST'])
 def getDirections():
 	
@@ -50,8 +58,7 @@ def index():
 		query        =  request.form['query']
 		transit_mode =  request.form['transit_mode']
 		userName     =  request.form['user_name']
-
-		catagory = 'Optimize'     
+		catagory     =  request.form['rec_mode']
 
 		#try to fail gracefully
 		try: loc1_geo = googlePOI.geocodeFromName(loc1)
@@ -72,7 +79,6 @@ def index():
 		#d1 = MidPoint.getDirections(loc1_geo, loc2_geo, gMapsKey, time='now', mode = transit_mode)
 	
 		if dist < 50000: dist= 500
-		print midPoint
 
 		for i in range(5):
 			pois = googlePOI.searchNearBy(gMapsKey, query, midPoint, radius=dist + i*.05*dist, minprice=0, maxprice=4)
@@ -129,7 +135,7 @@ def index():
 
 
 		if avg_score[0][0] == None:
-			qr = "SELECT avgreview, avgcost, fairness FROM avg WHERE catagory = \'Optimize\'" #% (catagory) 
+			qr = "SELECT avgreview, avgcost, fairness FROM avg WHERE catagory = \'%s\'" % (catagory) 
 			avg_score = pd.read_sql_query(qr, conn).as_matrix()
 
 		avg_score = avg_score[0]
@@ -137,16 +143,13 @@ def index():
 		dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
 
 		#sort_order = np.argsort(dot)[::-1]
-		sort_order = np.argsort(fairness)[::-1]
+		sort_order = np.argsort(dot)[::-1]
 
 		for i, p in enumerate(pois['results']):
 			pois['results'][i]['sim_score'] = round(dot[i],2)
 			pois['results'][i]['idx_num'] = i
 			pois['results'][i]['user'] = userName
 
-		h=open('place.json','w')
-		h.write( simplejson.dumps(pois) )
-		h.close()
 		
 		return render_template('index.html', msg='', poi = simplejson.dumps(pois), sort_order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
 		

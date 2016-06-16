@@ -3,5 +3,5 @@ keys
 *.pem
 *.pyc
 *.json
-
+*.swp
 yelp
