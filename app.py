@@ -18,6 +18,7 @@ app = Flask(__name__)
 #Load the API keys
 keys = simplejson.load( open('./static/keys') )
 gMapsKey = keys['GMapsApiKey']
+sqlLink  = keys['sqlLink'] #'postgresql:///yelp'
 
 #pois = {'status':'Bad'} 
 
@@ -39,7 +40,7 @@ def getDirections():
 	#print time.strftime('%Y-%m-%d %H:%M:%S', a)
 	#print data['user'], data['rating'], data['price_level'], data['fairness'], a
 	if data['user'] != '':
-		conn = sqlalchemy.create_engine('postgresql:///yelp')
+		conn = sqlalchemy.create_engine(sqlLink)
 		s = 'insert into users values (\'%s\', %f, %f, %f, \'%s\')' %(data['user'], data['rating'], data['price_level'], data['fairness']/100., time.strftime('%Y-%m-%d %H:%M:%S', a) )
 		a=conn.execute(s)
 
@@ -128,7 +129,7 @@ def index():
 		#conn = sqlalchemy.create_engine('postgresql:///insight')
 		#s="select index from ny_tile where ST_Contains(st_geomfromtext, ST_GeomFromText( 'POINT(%f %f)', 4326) );" %(loc1_geo[1], loc1_geo[0])
 		#a=conn.execute(s).fetchall()
-		conn = sqlalchemy.create_engine('postgresql:///yelp')
+		conn = sqlalchemy.create_engine(sqlLink)
 
 		qr = "SELECT avg(review), avg(price), avg(fairness) FROM users WHERE name = \'%s\'" % (userName)
 		avg_score = pd.read_sql_query(qr, conn).as_matrix()
