@@ -85,7 +85,28 @@
     <p>Enter your search paramters below to find your meeting place.</p> 
     </p>
   </div>
-  <form class="form-horizontal" role="form" method='post' action='/' >
+
+  <div id="map-canvas"></div>
+
+  <div id='table-area'>
+    <table class= "table table-hover">
+      <thead id='thead'>
+        <tr>
+          <th>Your Ranking</th>
+          <th>Similarity Score</th>
+          <th>Name</th>
+          <th>Average Review</th>
+          <th>Price Level</th>
+          <th>Max Travel Time (min.)</th>
+          <th>Travel Fairness (%)</th>
+        </tr>
+      </thead>
+      <tbody id='tbody'></tbody>
+    </table>
+  </div>
+
+  <h4> Try again </h4>
+    <form class="form-horizontal" role="form" method='post' action='/mapit' >
     <div class="row">
       <div class="col-sm-6 col-lg-4">
         <div class="form-group">
@@ -157,26 +178,6 @@
 
   </form>
 
-  <div id="map-canvas"></div>
-
-  <div id='table-area'>
-    <table class= "table table-hover">
-      <thead id='thead'>
-        <tr>
-          <th>Your Ranking</th>
-          <th>Similarity Score</th>
-          <th>Name</th>
-          <th>Average Review</th>
-          <th>Price Level</th>
-          <th>Max Travel Time (min.)</th>
-          <th>Travel Fairness (%)</th>
-        </tr>
-      </thead>
-      <tbody id='tbody'></tbody>
-    </table>
-
-
-  </div>
 
   </div><!-- /.container -->
 
