@@ -35,10 +35,13 @@ def login():
 		transit_mode =  request.form['transit_mode']
 		userName     =  request.form['user_name']
 		passWord     =  request.form['pass_word']
+		catagory     =  request.form['prefs']
+
+		if catagory =='':  catagory = 'Optimize'
+
 
 		userName +=passWord
 
-		catagory = 'Optimize'
 
 		try: loc1_geo = googlePOI.geocodeFromName(loc1)
 		except: return render_template('index.html', poi=0, sort_order=0, center={'lat':40.749364, 'lng':-73.987687}, 

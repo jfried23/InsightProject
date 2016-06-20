@@ -41,6 +41,47 @@
     border-bottom: 1px solid #ccc;
 }
 
+body {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #eee;
+}
+
+.form-signin {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 #map-canvas {
   width: 100%;
   height: 350px;
@@ -118,11 +159,9 @@
         </div>
       </div>
       </div>
-      </div>    
+      </div>   
 
-    <p></p>
-    <p></p>
-    <h4> Enter a username / password for custom reccomindations </h4>
+    <h2 class="form-signin-heading">Please sign in:</h2>
     <div class="row">
       <div class="col-sm-6 col-lg-4">
         <div class="form-group">
@@ -145,12 +184,12 @@
     <h4>Or select a template:</h4>
       <div class="col-sm-6 col-lg-4">
        <div class="form-group">
-         <label for="inputLocation" class="col-md-4 control-label">Travel by:</label>
+         <label for="inputLocation" class="col-md-4 control-label">Predfined Prefrences:</label>
          <div class="col-md-8">
-            <select class="selectpicker" name="transit_mode">
-              <option value="transit">Transit</option>
-              <option value="walking">Walking</option>
-              <option value="driving">Driving</option>
+            <select class="selectpicker" name="prefs">
+              <option value="Optimize">Find Optimal</option>
+              <option value="Gourmets">Skew Gourmet</option>
+              <option value="Random">Skew Cheap</option>
             </select>
           </div>
           </div>
