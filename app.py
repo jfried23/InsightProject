@@ -123,12 +123,14 @@ def login():
 			qr = "SELECT avgreview, avgcost, fairness FROM avg WHERE catagory = \'%s\'" % (catagory) 
 			avg_score = pd.read_sql_query(qr, conn).as_matrix()
 
+		score_scale = np.array([5,5,1])	
 
+		avg_score = avg_score[0] / score_scale
+		scores = scores / score_scale
+		
 
-		avg_score = avg_score[0] / np.linalg.norm(avg_score[0])
-		scores = scores / np.linalg.norm(scores) 
+		dot =  np.dot(scores, avg_score)/( np.linalg.norm(scores) * np.linalg.norm(avg_score))
 
-		dot =  np.dot(scores, avg_score)  
 
 		#sort_order = np.argsort(dot)[::-1]
 		sort_order = np.argsort(dot)[::-1]
@@ -250,10 +252,13 @@ def index():
 			qr = "SELECT avgreview, avgcost, fairness FROM avg WHERE catagory = \'%s\'" % (catagory) 
 			avg_score = pd.read_sql_query(qr, conn).as_matrix()
 
-		avg_score = avg_score[0] / np.linalg.norm(avg_score[0])
-		scores = scores / np.linalg.norm(scores) 
+		score_scale = np.array([5,5,1])	
 
-		dot =  np.dot(scores, avg_score)  
+		avg_score = avg_score[0] / score_scale
+		scores = scores / score_scale
+		
+
+		dot =  np.dot(scores, avg_score)/( np.linalg.norm(scores) * np.linalg.norm(avg_score))
 
 
 		#sort_order = np.argsort(dot)[::-1]
