@@ -23,6 +23,7 @@ sqlLink  = keys['sqlLink'] #'postgresql:///yelp'
 #pois = {'status':'Bad'} 
 
 
+def calcSimSore( pois, usrAvg):
 
 
 @app.route("/", methods=['GET','POST'])
@@ -116,18 +117,18 @@ def login():
 
 		qr = "SELECT avg(review), avg(price), avg(fairness) FROM users WHERE name = \'%s\'" % (userName)
 		avg_score = pd.read_sql_query(qr, conn).as_matrix()
-		print avg_score
+	
 
 		if avg_score[0][0] == None:
 			qr = "SELECT avgreview, avgcost, fairness FROM avg WHERE catagory = \'%s\'" % (catagory) 
 			avg_score = pd.read_sql_query(qr, conn).as_matrix()
-			print "default \t", avg_score
 
+			
 
-		avg_score = avg_score[0]
-		avg_score[-1] *= 5
+		avg_score = avg_score[0] / np.linalg.norm(avg_score[0])
+		scores = scores / np.linalg.norm(scores) 
 
-		dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
+		dot =  np.dot(scores, avg_score)  
 
 		#sort_order = np.argsort(dot)[::-1]
 		sort_order = np.argsort(dot)[::-1]
@@ -141,10 +142,6 @@ def login():
 		return render_template('index.html', msg='', poi = simplejson.dumps(pois), sort_order = list(sort_order), center={'lat':midPoint[0],'lng':midPoint[1]} )
 
 
-		#print loc1, loc2, query, transit_mode, userName, passWord
-		#return render_template('login.html')
-
-
 
 @app.route("/logChoice", methods=['GET','POST'])
 def getDirections():
@@ -153,8 +150,6 @@ def getDirections():
 	a = time.localtime()
 
 
-	#print time.strftime('%Y-%m-%d %H:%M:%S', a)
-	#print data['user'], data['rating'], data['price_level'], data['fairness'], a
 	if data['user'] != '':
 		conn = sqlalchemy.create_engine(sqlLink)
 		s = 'insert into users values (\'%s\', %f, %f, %f, \'%s\')' %(data['user'], data['rating'], data['price_level'], data['fairness']/100., time.strftime('%Y-%m-%d %H:%M:%S', a) )
@@ -255,9 +250,11 @@ def index():
 			qr = "SELECT avgreview, avgcost, fairness FROM avg WHERE catagory = \'%s\'" % (catagory) 
 			avg_score = pd.read_sql_query(qr, conn).as_matrix()
 
-		avg_score = avg_score[0]
+		avg_score = avg_score[0] / np.linalg.norm(avg_score[0])
+		scores = scores / np.linalg.norm(scores) 
 
-		dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
+		dot =  np.dot(scores, avg_score)  
+
 
 		#sort_order = np.argsort(dot)[::-1]
 		sort_order = np.argsort(dot)[::-1]
