@@ -83,7 +83,7 @@
     </p>
   </div>
 
-  <div id="map-canvas"></div>
+  
 
   <div id='table-area'>
   <p>Double click table entries to select a place and update your user prefences.</p>
@@ -102,6 +102,8 @@
       <tbody id='tbody'></tbody>
     </table>
   </div>
+
+<div id="map-canvas"></div>
 
   <h4> Try again </h4>
     <form class="form-horizontal" role="form" method='post' action='/mapit' >
@@ -256,6 +258,9 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
                       function(d,i){  
                         d3.select(this).classed("red-cell", true); 
                         showData(poi.results[order[d]]); 
+                        debugger;
+                        callback( [poi.results[order[d]]], poi['status'], map );
+
                       }  )
                     .attr('id',function(d){ return d;});
 
@@ -277,7 +282,7 @@ var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions)
           .remove();
 
 
-          callback( poi['results'], poi['status'], map ); 
+          //callback( poi['results'], poi['status'], map ); 
         
 
         };
