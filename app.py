@@ -23,6 +23,8 @@ sqlLink  = keys['sqlLink'] #'postgresql:///yelp'
 #pois = {'status':'Bad'} 
 
 
+
+
 @app.route("/", methods=['GET','POST'])
 def login():
 
@@ -114,13 +116,16 @@ def login():
 
 		qr = "SELECT avg(review), avg(price), avg(fairness) FROM users WHERE name = \'%s\'" % (userName)
 		avg_score = pd.read_sql_query(qr, conn).as_matrix()
-
+		print avg_score
 
 		if avg_score[0][0] == None:
 			qr = "SELECT avgreview, avgcost, fairness FROM avg WHERE catagory = \'%s\'" % (catagory) 
 			avg_score = pd.read_sql_query(qr, conn).as_matrix()
+			print "default \t", avg_score
+
 
 		avg_score = avg_score[0]
+		avg_score[-1] *= 5
 
 		dot =  np.dot(scores, avg_score) / ( np.linalg.norm(scores, axis=1) * np.linalg.norm(avg_score))
 
