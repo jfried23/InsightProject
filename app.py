@@ -23,7 +23,7 @@ sqlLink  = keys['sqlLink'] #'postgresql:///yelp'
 #pois = {'status':'Bad'} 
 
 
-def calcSimSore( pois, usrAvg):
+
 
 
 @app.route("/", methods=['GET','POST'])
@@ -123,7 +123,7 @@ def login():
 			qr = "SELECT avgreview, avgcost, fairness FROM avg WHERE catagory = \'%s\'" % (catagory) 
 			avg_score = pd.read_sql_query(qr, conn).as_matrix()
 
-			
+
 
 		avg_score = avg_score[0] / np.linalg.norm(avg_score[0])
 		scores = scores / np.linalg.norm(scores) 
