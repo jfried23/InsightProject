@@ -4,4 +4,5 @@ keys
 *.pyc
 *.json
 *.swp
+*.log
 yelp
