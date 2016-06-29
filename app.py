@@ -23,11 +23,13 @@ sqlLink  = keys['sqlLink'] #'postgresql:///yelp'
 #pois = {'status':'Bad'} 
 
 
-@app.route("/slides", methods=['GET','POST'])
-def ppt():
+@app.route("/slides2", methods=['GET','POST'])
+def ppt2():
 	return render_template('slides.html')
 
-
+@app.route("/slides", methods=['GET','POST'])
+def ppt():
+	return render_template('slides2.html')
 
 @app.route("/", methods=['GET','POST'])
 def login():
